@@ -52,7 +52,6 @@ function filterData(data: Pokemon[], search: string) {
   );
 }
 
-
 function sortData(
   data: Pokemon[],
   payload: { sortBy: keyof Pokemon | null; reversed: boolean; search: string }
@@ -63,20 +62,19 @@ function sortData(
     return filterData(data, payload.search);
   }
 
-return filterData(
-  [...data].sort((a, b) => {
-    const aValue = typeof a[sortBy] === 'number' ? a[sortBy] : parseFloat(a[sortBy]);
-    const bValue = typeof b[sortBy] === 'number' ? b[sortBy] : parseFloat(b[sortBy]);
+  return filterData(
+    [...data].sort((a, b) => {
+      const aValue = typeof a[sortBy] === 'number' ? a[sortBy] : parseFloat(a[sortBy]);
+      const bValue = typeof b[sortBy] === 'number' ? b[sortBy] : parseFloat(b[sortBy]);
 
-    if (payload.reversed) {
-      return bValue - aValue;
-    }
+      if (payload.reversed) {
+        return bValue - aValue;
+      }
 
-    return aValue - bValue;
-  }),
-  payload.search
-);
-
+      return aValue - bValue;
+    }),
+    payload.search
+  );
 }
 function chunk<T>(array: T[], size: number): T[][] {
   if (!array.length) {
@@ -95,7 +93,6 @@ function addIdToPokemon(data: Pokemon[]): Pokemon[] {
 }
 
 export function Datatable() {
- 
   const [search, setSearch] = useState('');
   const [sortedData, setSortedData] = useState<Pokemon[]>([]);
   const [sortBy, setSortBy] = useState<keyof Pokemon | null>(null);
@@ -117,9 +114,9 @@ export function Datatable() {
     fetchData();
   }, []);
 
-   const handlePageChange = (page: number) => {
-     setActivePage(page);
-   };
+  const handlePageChange = (page: number) => {
+    setActivePage(page);
+  };
   const paginatedData = chunk(sortedData, itemsPerPage)[activePage - 1];
   const setSorting = (field: keyof Pokemon) => {
     const reversed = field === sortBy ? !reverseSortDirection : false;
@@ -156,54 +153,56 @@ export function Datatable() {
   ));
 
   return (
-    <ScrollArea className={classes.table}>
-      <TextInput
-        placeholder="Search by any field"
-        mb="md"
-        leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
-        value={search}
-        onChange={handleSearchChange}
-      />
-      <Table horizontalSpacing="md" verticalSpacing="xs" miw={700} layout="fixed">
-        <Table.Tbody>
-          <Table.Tr>
-            <Th
-              sorted={sortBy === 'id'}
-              reversed={reverseSortDirection}
-              onSort={() => setSorting('id')}
-            >
-              Name
-            </Th>
-            <Th
-              sorted={sortBy === 'name'}
-              reversed={reverseSortDirection}
-              onSort={() => setSorting('name')}
-            >
-              Name
-            </Th>
-            <Th>Details</Th>
-          </Table.Tr>
-        </Table.Tbody>
-        <Table.Tbody>
-          {rows && rows.length > 0 ? (
-            rows
-          ) : (
+    <div className={classes.roof}>
+      <Table.ScrollContainer h={'100%'} minWidth={'100%'} className={classes.table}>
+        <TextInput
+          placeholder="Search by any field"
+          mb="md"
+          leftSection={<IconSearch style={{ width: rem(16), height: rem(16) }} stroke={1.5} />}
+          value={search}
+          onChange={handleSearchChange}
+        />
+        <Table horizontalSpacing="md" verticalSpacing="xs" miw={700} mih={'100%'} layout="fixed">
+          <Table.Tbody h={'100%'}>
             <Table.Tr>
-              <Table.Td colSpan={Object.keys(sortedData.length > 0 ? sortedData[0] : {}).length}>
-                <Text fw={500} ta="center">
-                  Nothing found
-                </Text>
-              </Table.Td>
+              <Th
+                sorted={sortBy === 'id'}
+                reversed={reverseSortDirection}
+                onSort={() => setSorting('id')}
+              >
+                Name
+              </Th>
+              <Th
+                sorted={sortBy === 'name'}
+                reversed={reverseSortDirection}
+                onSort={() => setSorting('name')}
+              >
+                Name
+              </Th>
+              <Th>Details</Th>
             </Table.Tr>
-          )}
-        </Table.Tbody>
-      </Table>
-      <Pagination
-        total={Math.ceil(sortedData.length / itemsPerPage)}
-        value={activePage}
-        onChange={handlePageChange}
-        mt="sm"
-      />
-    </ScrollArea>
+          </Table.Tbody>
+          <Table.Tbody>
+            {rows && rows.length > 0 ? (
+              rows
+            ) : (
+              <Table.Tr>
+                <Table.Td colSpan={Object.keys(sortedData.length > 0 ? sortedData[0] : {}).length}>
+                  <Text fw={500} ta="center">
+                    Nothing found
+                  </Text>
+                </Table.Td>
+              </Table.Tr>
+            )}
+          </Table.Tbody>
+        </Table>
+        <Pagination
+          total={Math.ceil(sortedData.length / itemsPerPage)}
+          value={activePage}
+          onChange={handlePageChange}
+          mt="sm"
+        />
+      </Table.ScrollContainer>
+    </div>
   );
 }

@@ -1,16 +1,32 @@
+'use client';
 import { getPokemonById } from '../../api/PokemonAPI';
 import { PokemonImage } from '../../../components/PokemonImg/pokemon-image';
-import { Flex, SimpleGrid } from '@mantine/core';
+import { ActionIcon, Flex, Group, SimpleGrid } from '@mantine/core';
 import { Progress } from '@/components/ui/progress';
 import Link from 'next/link';
-import { ArrowLeft } from 'react-feather';
+import { IconChevronLeft } from '@tabler/icons-react';
+import { redirect, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-export default async function PokemonPage({ params }: { params: { pokemonName: string } }) {
+export default function PokemonPage({ params }: { params: { pokemonName: string } }) {
+  const [pokemonObject, setPokemonObject] = useState()
+  const router = useRouter();
   const { pokemonName } = params;
-  const pokemonObject = await getPokemonById(pokemonName);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getPokemonById(pokemonName);
+        setPokemonObject(res);
+      } catch (error) {
+        console.error('Error fetching user data:', error.message);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
     <>
-      <Link
+      {/*       <Link
         href="/pokemon-list"
       >
         <Flex
@@ -24,26 +40,34 @@ export default async function PokemonPage({ params }: { params: { pokemonName: s
         >
           <ArrowLeft size={24} />
         </Flex>
-      </Link>
+      </Link> */}
+      <Group bg="rgba(0, 0, 0, .3)" display={'flex'} justify="space-between">
+        <div style={{ marginLeft: 15 }}>
+          <ActionIcon radius={99} onClick={() => router.push('/')}>
+            <IconChevronLeft />
+          </ActionIcon>
+        </div>
+        <h1 className="">{pokemonName.charAt(0).toUpperCase() + pokemonName.slice(1)}</h1>
+        <div></div>
+      </Group>
       <Flex
         mih={100}
-        bg="rgba(0, 0, 0, .3)"
         gap="lg"
         justify="center"
         align="center"
         direction="column"
         wrap="wrap"
+        bg="rgba(0, 0, 0, .3)"
       >
-        <h1 className="">{pokemonName.charAt(0).toUpperCase() + pokemonName.slice(1)}</h1>
         <div className="" style={{ position: 'relative', width: '300px', height: '300px' }}>
           <PokemonImage
-            image={pokemonObject.sprites.other['official-artwork'].front_default}
+            image={pokemonObject?.sprites.other['official-artwork'].front_default}
             name={pokemonName}
           />
         </div>
-        <h3>Weight: {pokemonObject.weight}</h3>
+        <h3>Weight: {pokemonObject?.weight}</h3>
         <div className="">
-          {pokemonObject.stats.map((statObject: any) => {
+          {pokemonObject?.stats.map((statObject: any) => {
             const statName = statObject.stat.name;
             const statValue = statObject.base_stat;
 
